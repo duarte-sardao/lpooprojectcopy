@@ -7,12 +7,28 @@ import java.util.List;
 
 public abstract class Element {
     Position pos; //left bottom corner
+    int width;
+    int height;
+
+    public int getWidth() {
+        return width;
+    }
+
+    public int getHeight() {
+        return height;
+    }
+
     List<List<Character>> sprite;
     String colour;
+    String fcolour;
+
 
     public Element(Position pos) {
         this.pos = pos;
         sprite = new ArrayList<List<Character>>();
+        width = 0;
+        height = 0;
+        fcolour = "#FFFFFF";
     }
 
     public Position getPos() {
@@ -28,13 +44,20 @@ public abstract class Element {
         BufferedReader reader = new BufferedReader(new InputStreamReader(is));
         while (reader.ready()) {
             String line = reader.readLine();
-            List<Character> newL = new ArrayList<Character>();
+            List<Character> newL = new ArrayList<>();
+            int curwidth = 0;
             for(Character c: line.toCharArray()) {
                 newL.add(c);
+                curwidth++;
             }
+            if(curwidth > width)
+                width = curwidth;
             sprite.add(newL);
+            height++;
         }
     }
+
+
 
     public void draw(GUI gui) {
         //draws from bottom to top
@@ -44,8 +67,7 @@ public abstract class Element {
                 if(ch == '?') {
                     continue;
                 }
-                gui.drawText(new Position(pos.getX()+col, pos.getY()-(sprite.size()-line)), String.valueOf(ch), colour);
-                //se calhar usamos so quadrados e em função da letra definia uma cor de fundo
+                gui.drawObj(new Position(pos.getX()+col, pos.getY()-(sprite.size()-line)), String.valueOf(ch), colour, fcolour);
             }
         }
     }

@@ -1,15 +1,8 @@
-import com.googlecode.lanterna.TerminalPosition;
-import com.googlecode.lanterna.TerminalSize;
-import com.googlecode.lanterna.TextColor;
-import com.googlecode.lanterna.graphics.TextGraphics;
-import com.googlecode.lanterna.input.KeyStroke;
-import com.googlecode.lanterna.screen.Screen;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Random;
+
 
 public class Arena {
 
@@ -19,30 +12,44 @@ public class Arena {
 
     private Cowboy cowboy;
 
-    private List<FixedObject> fixed;
+    private Score score;
+  
+    private SunMoon sunmoon;
+
+    private LifeDisplayer lf;
 
     private List<MobileObject> mobile;
 
-    private ArenaDrawer arenaDrawer;
-
     private int floorH;
 
+    private boolean night;
+
+    public boolean isNight() {
+        return night;
+    }
+    public void setDay(){
+        night=false;
+    }
+
+    public void setNight()
+    {
+        night = true;
+    }
+
+    public SunMoon getSunmoon() {
+        return sunmoon;
+    }
 
     public Arena(int width, int height, int floor) throws IOException {
+        night = false;
         this.width = width;
         this.height = height;
         floorH = floor;
-        this.arenaDrawer = new ArenaDrawer(this);
         mobile = new ArrayList<MobileObject>();
-        fixed = new ArrayList<FixedObject>();
         cowboy = new Cowboy(new Position(10, height-floorH), new Health(3));
-        mobile.add(new Cactus(new Position(16, height-floorH)));
-        mobile.add(new Barrel(new Position(24, height-floorH)));
-        fixed.add(new SunMoon(new Position(width-10, 6)));
-        mobile.add(new Pickpocket(new Position(40, height-floorH)));
-        mobile.add(new Robber(new Position(60, height-floorH)));
-        mobile.add(new Coin(new Position(70, height-floorH-20)));
-        mobile.add(new Beer(new Position(100, height-floorH-20)));
+        sunmoon = new SunMoon(new Position(width-10, 6));
+        score = new Score(new Position(10 ,6));
+        lf = new LifeDisplayer(new Position(50, 10));
     }
 
     public int getWidth() {
@@ -73,13 +80,6 @@ public class Arena {
         this.cowboy = cowboy;
     }
 
-    public List<FixedObject> getFixed() {
-        return fixed;
-    }
-
-    public void setFixed(List<FixedObject> fixed) {
-        this.fixed = fixed;
-    }
 
     public List<MobileObject> getMobile() {
         return mobile;
@@ -90,12 +90,26 @@ public class Arena {
     }
 
 
-    public ArenaDrawer getArenaDrawer() {
-        return arenaDrawer;
+    public Score getScore() {
+        score.updateScore(cowboy.coinsCollected);
+        return score;
     }
 
-    public void setArenaDrawer(ArenaDrawer arenaDrawer) {
-        this.arenaDrawer = arenaDrawer;
-
+    public LifeDisplayer getLf() {
+        return lf;
     }
+
+    public void setLf(LifeDisplayer lf) {
+        this.lf = lf;
+    }
+
+    public boolean day() {
+        return !night;
+    }
+
+    public boolean isCowboyDead()
+    {
+        return cowboy.getHealth().getCurrentHealth()==0;
+    }
+
 }

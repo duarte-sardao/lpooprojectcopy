@@ -19,6 +19,10 @@ public class LanternaGUI implements GUI{
         this.screen = createScreen(terminal);
     }
 
+    public LanternaGUI(Screen screen) {
+        this.screen = screen;
+    }
+
     private Screen createScreen(Terminal terminal) throws IOException {
         Screen screen = new TerminalScreen(terminal);
         screen.setCursorPosition(null);
@@ -50,7 +54,8 @@ public class LanternaGUI implements GUI{
 
     @Override
     public MOVEMENT getNextMovement() throws IOException {
-        KeyStroke keyStroke = screen.readInput();
+        KeyStroke keyStroke = screen.pollInput();
+        if(keyStroke == null ) return MOVEMENT.NONE;
         if(keyStroke.getKeyType() == KeyType.EOF)
             return MOVEMENT.QUIT;
         if(keyStroke.getKeyType()!= KeyType.Character)
@@ -70,7 +75,20 @@ public class LanternaGUI implements GUI{
     public void drawText(Position position, String text, String color) {
         TextGraphics textGraphics = screen.newTextGraphics();
         textGraphics.setBackgroundColor(TextColor.Factory.fromString(color));
+        textGraphics.setForegroundColor(TextColor.Factory.fromString("#000000"));
         textGraphics.putString(position.getX(),position.getY(),text);
+
+
+    }
+
+    @Override
+    public void drawObj(Position position, String text, String color, String fcolor) {
+        TextGraphics textGraphics = screen.newTextGraphics();
+        textGraphics.setBackgroundColor(TextColor.Factory.fromString(color));
+        textGraphics.setForegroundColor(TextColor.Factory.fromString(fcolor));
+        textGraphics.putString(position.getX(),position.getY(),text);
+
+
     }
     @Override
     public void fillRectangle(Position position, Position size, String color, Character character) {

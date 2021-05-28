@@ -12,22 +12,26 @@ import com.googlecode.lanterna.terminal.swing.AWTTerminalFontConfiguration;
 import java.awt.*;
 import java.io.File;
 import java.io.IOException;
+import java.util.Calendar;
 
 import static com.googlecode.lanterna.input.KeyType.*;
+import static java.lang.Thread.sleep;
 
 public class Game {
 
 
     private GUI gui;
-    private KeyStroke key;
     private Arena arena;
-
+    private ArenaDrawer arenaDrawer;
+    private ArenaController arenaController;
 
     public Game() {
 
         try {
             gui = new LanternaGUI(150, 40);
             arena = new Arena(150,40, 7);
+            arenaDrawer = new ArenaDrawer(arena);
+            arenaController = new ArenaController(arena);
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -39,36 +43,52 @@ public class Game {
     private void draw() throws IOException
     {
         gui.clear();
-        arena.getArenaDrawer().draw(gui);
+        arenaDrawer.draw(gui);
         gui.refresh();
     }
 
-    public void run()
-    {
-        while(true)
-        {
-            try
-            {
-                draw();
-                key = gui.readInput();
-                /*
-                if(processKey() != 0)
-                {
-                    screen.close();
-                }
-                */
-                if(key.getKeyType() == KeyType.Character && key.getCharacter() == 'q')
+
+
+
+    public void run() {
+
+        int FPS = 30;
+        int frametime = 1000 / FPS;
+        long seconds = 0;
+        while (true) {
+            try {
+                long startTime = System.currentTimeMillis();
+                long nseconds = startTime / 1000;
+                if(arena.isCowboyDead())
                 {
                     gui.close();
+                    return;
                 }
-
-                if(key.getKeyType() == KeyType.EOF)
-                {
-                    break;
+                if (nseconds > seconds+1) {
+                    seconds = nseconds;
+                    arenaController.spawnObjects();
+                    if (seconds % 10 == 0) {
+                        arenaController.switchTime();
+                        arenaController.cleanupObjs();
+                        FPS += 10;
+                        frametime = 1000 / FPS;
+                    }
                 }
-
-            }catch (IOException e)
-            {
+                arenaController.updateCowboy();
+                arenaController.updateMobiles();
+                draw();
+                if(!arenaController.nextMove(gui.getNextMovement())) {
+                    gui.close();
+                    return;
+                }
+                long elaspedTime = System.currentTimeMillis() - startTime;
+                long sleepTime = frametime - elaspedTime;
+                try {
+                    if (sleepTime > 0) Thread.sleep(sleepTime);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            } catch (IOException e) {
                 e.printStackTrace();
             }
         }
