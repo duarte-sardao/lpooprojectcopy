@@ -13,7 +13,7 @@ public class Arena {
     private Cowboy cowboy;
 
     private Score score;
-  
+
     private SunMoon sunmoon;
 
     private LifeDisplayer lf;
@@ -27,6 +27,7 @@ public class Arena {
     public boolean isNight() {
         return night;
     }
+
     public void setDay(){
         night=false;
     }
@@ -40,6 +41,10 @@ public class Arena {
         return sunmoon;
     }
 
+    public void setSunmoon(SunMoon sunmoon) {
+        this.sunmoon = sunmoon;
+    }
+
     public Arena(int width, int height, int floor) throws IOException {
         night = false;
         this.width = width;
@@ -48,7 +53,7 @@ public class Arena {
         mobile = new ArrayList<MobileObject>();
         cowboy = new Cowboy(new Position(10, height-floorH), new Health(3));
         sunmoon = new SunMoon(new Position(width-10, 6));
-        score = new Score(new Position(10 ,6));
+        score = new Score(new Position(3 ,7));
         lf = new LifeDisplayer(new Position(50, 10));
     }
 
@@ -89,8 +94,7 @@ public class Arena {
         this.mobile = mobile;
     }
 
-
-    public Score getScore() {
+    public Score getScore() throws IOException {
         score.updateScore(cowboy.coinsCollected);
         return score;
     }
